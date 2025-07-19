@@ -1,0 +1,37 @@
+services:
+    # The Application
+    desapediasosdevice:
+        image: loginusa/desapediasosdevice:latest
+        container_name: desapediasosdevice
+        # ports:
+        #     - 3991:3991
+        volumes:
+            # Mount a host directory to a container directory
+            - ./sounds_dir:/usr/src/app/sounds_dir
+            - ./logs:/usr/src/app/logs
+              #            - "${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulse/native"
+        privileged: true
+        user: root
+        devices:
+            - "/dev/snd:/dev/snd"
+        environment:
+            SOS_SERVICE_PORT: 3991
+            SOS_DEVICE_ID: ${SOS_DEVICE_ID}                 # organisasi id
+            SOS_DEVICE_SUB: ${SOS_DEVICE_SUB}               # 1 
+            SOS_DEVICE_SOCKET_URL: ${SOS_DEVICE_SOCKET_URL} # wss://socket.loginusa.id/connection/websocket     || wss://socket.desapedia.co.id/connection/websocket
+            DESAPEDIA_BASE_URL: ${DESAPEDIA_BASE_URL}       # https://devapigateway.desapedia.co.id             || https://apigateway.desapedia.co.id
+            PULSE_SERVER: unix:/tmp/pulse/native
+        restart: always
+        network_mode: "host"
+
+    watchtower:
+        image: containrrr/watchtower
+        container_name: watchtower
+        restart: always
+        environment:
+            WATCHTOWER_POLL_INTERVAL: 21600
+            TZ: Asia/Jakarta
+            WATCHTOWER_CLEANUP: "true"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        network_mode: "host"
